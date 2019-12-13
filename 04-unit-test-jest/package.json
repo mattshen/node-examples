@@ -1,20 +1,21 @@
 {
-  "name": "02-js-standard-libs",
+  "name": "04-unit-test-jest",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "jest"
   },
-  "author": "",
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": [
+      "html"
+    ]
+  },
+  "author": "Matt Shen",
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^24.0.23",
-    "@types/lodash": "^4.14.149",
-    "express": "^4.17.1",
     "jest": "^24.9.0"
-  },
-  "dependencies": {
-    "lodash": "^4.17.15"
   }
 }

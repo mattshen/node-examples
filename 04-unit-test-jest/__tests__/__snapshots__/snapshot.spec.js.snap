@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should return proper greeting 1`] = `
+Object {
+  "date": "12/12/2019",
+  "message": "hello, how are you?",
+  "to": "matt",
+}
+`;
