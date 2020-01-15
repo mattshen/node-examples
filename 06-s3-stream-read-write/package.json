@@ -1,0 +1,16 @@
+{
+  "name": "06-s3-stream-read-write",
+  "version": "1.0.0",
+  "description": "",
+  "main": "simple-s3-stream-to-local-file.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "aws-sdk": "^2.603.0",
+    "xml-stream": "^0.4.5"
+  }
+}
