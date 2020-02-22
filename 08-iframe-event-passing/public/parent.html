@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Parent Window</title>
+</head>
+<body>
+
+    <h1>Parent Window</h1>
+    <p>Send Message: <button id="message_button">Hi there iframe</button></p>
+    <p>Got Message:</p>
+    <div id="results"></div>
+    <br/>
+
+    <script>
+        // addEventListener support for IE8
+        function bindEvent(element, eventName, eventHandler) {
+            if (element.addEventListener){
+                element.addEventListener(eventName, eventHandler, false);
+            } else if (element.attachEvent) {
+                element.attachEvent('on' + eventName, eventHandler);
+            }
+        }
+
+        var iframeSource = 'http://localhost:8080/secure/auth.html';
+
+        // Create the iframe
+        var iframe = document.createElement('iframe');
+        iframe.setAttribute('src', iframeSource);
+        iframe.setAttribute('id', 'the_iframe');
+        iframe.style.width = 450 + 'px';
+        iframe.style.height = 400 + 'px';
+        document.body.appendChild(iframe);
+
+        // Send a message to the child iframe
+        var iframeEl = document.getElementById('the_iframe'),
+            messageButton = document.getElementById('message_button'),
+            results = document.getElementById('results');
+
+
+        // Send a message to the child iframe
+        var sendMessage = function(msg) {
+            // Make sure you are sending a string, and to stringify JSON
+            iframeEl.contentWindow.postMessage(msg, '*');
+        };
+
+        const JWT = 'LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tDQpWZXJzaW9uOiBPcGVuUEdQLmpzIHY0LjUuNQ0KQ29tbWVudDogaHR0cHM6Ly9vcGVucGdwanMub3JnDQoNCndjQk1BOXN3UzBVRnl3Z3pBUWYvZTZOL3pLd3NjdkY3dHZRbWtpWXR2SGs2REJENDhuaExvdnBLRGZTdw0KcDcxNDVDc1I3OXl2YWpDckJBNjJpZFRlcnUzZXBaQnBVelNFclVuejMrTjJRNmY2cndxa2VlZW5wdHh6DQo2OUo2Ym1zTkZ0VG1aVllOY29WSThla1RFK2NoMkFvZ0c4TUp3K3YyTUJoUDJwcVVGWm1pMG9qVVgxYU8NCktRY2hTRytEREZEZGF2ZWpSM2JVeHRXTVhUQytWa081S2puMlJCbDJLVlRCMzl0REFwYW5Ua2FlVFRxMw0KeUdLZUhZaWR2b2c2OXhRSzNwN2pjaS96TkJvY2J4alFpVmZUWUpoeVRsSlZMSzI2OGxma0M3eVhLU2hWDQo5UkNIanFMd2dVbENiMUlrcWVDMFJQOStzUElubE5QRzBhMyt1bU9VU3RVZDBwRmd6TVgrbTR2ZnJ3RjgNCkM5TENFQUV3VjFuTjl1K2N0YWsrQVhZTTdVdGhxNyt2enRFTDJBM1hSbDZ1MDYyNHlMRXh2aGVIS3Ryaw0KbW9ObGpMOHlBaTREbitsTzJKTXFCVkIvOGpBRkkvbHMyNEs3L28vblZCRmJwMkduZmNEdEJXN256Q1VFDQpHMEZINXN0UmZPcnZ6U3phdE53bnZJeUlsbHBINmFaK1RLVjV6THdhV29xamg0eUU4dWN0cnVYZHVkdjANCkl0RW9ucDFqUmtyWHdkUU1ZTWIyVDhPa1BkdGd0UU9JdDZHWVdmc1VzS29KQ09FK1lNU2R4UzBtUjFQcQ0KbmxObUtQRDdCVXY1Qm1reHBuZXNyenhQQUZLTXFLV2RzQVBCTWtiUUpNRmhGaFhmZlV4ZDBFeE40NlFIDQp2T1FsS2RXdkU3S2lZSVJyZkpwUGQ1REFGVlpHMjFXNEVmVExmM2dBSUJTdFRyc0pCdXpJaDdlY3Z3UkENCmw4dCtJb2IzaGV0RUNpSVRWc0ozQXNzRElmc0ZiZE9lZ1NGRTE4ZW9tMmFwNVk4alJPRkduNWR2dThGMw0KUm9pYk1RV1NFR1Z5TGIzalBMNE1adFl2bGNRQmxDMEx2c2h3MUVyczVvWEVSMUlPTFcwR3gzcjJWYkk4DQo1RzFZbkxlZFN0TE8yVUxrR3lHTko5alRwbmkzZXlreU5yeUdiRlhzU3dOMHdXRStKSFFFa2xiSU9UOXkNCmNvTS9IMjFRQm1HaW5wNDBFTVFnMERXekNicE1SNGtXY2VxQlMzZmtnTCtBa1RPcVJqb0xnQnpKcDc0OQ0Ka2FYcW9PdDl0VUphN0IvOTFzNHQyQWp3d2pKMWxYVUh4MVp5UjJaSnhQZ3I1MmxIUTlKckZFbkI3ZkhSDQozRFVMbmRxeGlndVBjODYvdEUrd3hnekRwMGo3cGJ2eVNEZHNUMGFYVTJPWktBMDNza1FvUUVtMnR5VWoNCmU1THVGMHVHOWNpYm96aHQwc29GMmRSdXNGVkQ0Z3hvVmY0NEExVmNjNmlleWdJNGltVElqd251SEhTVA0KSitkMUJkRHpOMEN3b0RaZzhVSlkycGZyeVlneUQwSG1LV1pVaER2SmdYelBLVHdBUHBReXpORDFtbnVDDQp2c3lWK3VkUjVFT25kUm82YWQ5dU10cEFxbERzejFZOXpHRXQxUi8vUUYrdCtCRFJqbWlrak50SDN4eXINCnVUSmlWTXN5blpFMWo5dVZRckNpWDUraHErU0J2aHVSMzJVN2RiTmhXNUNyRzFuUWxDaXpvQ1BQWHhGYQ0KY2V5b2lRPT0NCj1IZlZRDQotLS0tLUVORCBQR1AgTUVTU0FHRS0tLS0tDQo=';
+
+        // Send random messge data on every button click
+        bindEvent(messageButton, 'click', function (e) {
+            var random = Math.random();
+            sendMessage({ type: 'QantasJWT', value: JWT });
+        });
+
+        // Listen to message from child window
+        bindEvent(window, 'message', function (e) {
+            results.innerHTML = e.data;
+        });
+    </script>
+</body>
+</html>

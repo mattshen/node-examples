@@ -16,7 +16,9 @@ const LoggerMiddleware = (req, res, next) => {
     next();
 }
 
-const app = express()
+const app = express();
+
+app.use(express.static('public'));
 
 // app-level
 app.use(LoggerMiddleware);
@@ -42,15 +44,6 @@ app.post('/save', (req, res) => {
     })
 })
 
-// save route
-app.get('/timeout', (req, res) => {
-    setTimeout(() => {
-        res.json({
-            'status': true
-        });
-    }, 360000);
-});
-
 // router level
 const posts = express.Router();
 posts.use('/:id', function (req, res, next) {
@@ -75,8 +68,7 @@ app.use('/echo', function (req, res) {
     res.send({method: req.method, body: req.body, query: queryParams});
 });
 
-app.listen(3002, (req, res) => {
-    console.log('server running on port 3002')
+app.listen(3000, (req, res) => {
+    console.log('server running on port 3000')
 });
-
 

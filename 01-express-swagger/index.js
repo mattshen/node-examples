@@ -30,7 +30,13 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
   app.use(middleware.swaggerUi());
 
   // Start the server
-  http.createServer(app).listen(serverPort, function () {
+  const server = http.createServer(app).listen(serverPort, function () {
     console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);
+  });
+
+  server.timeout = 10000;
+  server.on("timeout", (a1, a2, a3) => {
+    console.log(server.timeout, a1, a2, a3);
+    console.log("Timeout event");
   });
 });
