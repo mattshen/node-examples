@@ -44,11 +44,13 @@ app.post('/save', (req, res) => {
 
 // save route
 app.get('/timeout', (req, res) => {
-    setTimeout(() => {
+    /*setTimeout(() => {
         res.json({
             'status': true
         });
-    }, 360000);
+    }, 360000);*/
+
+    res.status(504).send("server timeout");
 });
 
 // router level
