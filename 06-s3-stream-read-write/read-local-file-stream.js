@@ -1,14 +1,14 @@
 var XmlStream = require('xml-stream') ;
 
-const is = require('fs').createReadStream('LoyaltyMembersGenericExport_2020-02-12T134944.xml'); //.setEncoding('utf-8');;
+const is = require('fs').createReadStream('export-02-12T134944.xml'); //.setEncoding('utf-8');;
 const jsonOutput = require('fs').createWriteStream('./small-file.json');
 
 var xml = new XmlStream(is);
-xml.preserve('HouseHold', true);
-xml.collect('TranAccountActivity');
-xml.collect('TranAccountsActivity');
-xml.collect('Transaction');
-xml.collect('Transactions');
+xml.preserve('HH', true);
+xml.collect('TA');
+xml.collect('TSA');
+xml.collect('TX');
+xml.collect('TXS');
 
 
 let doDelimter = false;
@@ -21,7 +21,5 @@ xml.on('endElement: HouseHold', function(item) {
 });
 
 xml.on("end", function() {
-    //jsonOutput.write(']')
-    //jsonOutput.end();
     console.log("finished");
 });

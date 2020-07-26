@@ -3,7 +3,7 @@ var XmlStream = require('xml-stream') ;
 
 const s3 = new AWS.S3({apiVersion: '2006-03-01'});
 const params = {
-    Bucket: 'data-dev-incoming',
+    Bucket: 'data-incoming',
     Key: 'bigfile.xml', // big file
     ResponseContentEncoding: 'utf-16le'
 };
@@ -17,11 +17,11 @@ const s3Stream = s3.getObject(params).createReadStream().setEncoding('utf-16le')
 s3Stream.pipe(xmlOutput);
 
 var xml = new XmlStream(s3Stream);
-xml.preserve('Transaction', true);
+xml.preserve('TX', true);
 xml.collect('subitem');
 
 let doDelimter = false;
-xml.on('endElement: Transaction', function(item) {
+xml.on('endElement: TX', function(item) {
     try {
         //console.log(JSON.stringify(item, null, 2));
         if (doDelimter) {
