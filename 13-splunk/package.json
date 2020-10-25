@@ -1,0 +1,17 @@
+{
+  "name": "13-splunk",
+  "version": "1.0.0",
+  "description": "Splunk integration - logging and metrics",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node -r dotenv/config logger.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bunyan": "^1.8.14",
+    "dotenv": "^8.2.0",
+    "splunk-bunyan-logger": "^0.10.1"
+  }
+}
