@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "rate-limiter-flexible": "^2.1.13"
+    "rate-limiter-flexible": "^2.2.1"
   }
 }

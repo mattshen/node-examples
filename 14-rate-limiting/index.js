@@ -4,22 +4,24 @@ const sleep = (timeout) => new Promise((resolve) => {
     setTimeout(resolve, timeout);
 });
 
-
 const rateLimiter = new RateLimiterMemory({
-  points: 1,
-  duration: 1 
+  points: 3,
+  duration: 1
 });
+
+
 
 ;(async function() {
   while(true) {
     try {
       const rateLimiterRes = await rateLimiter.consume("bucket-123", 1);
-      console.log(new Date(), 'pass');
+      console.log(new Date(), 'pass', rateLimiterRes);
     } catch (e) {
-      console.log(new Date(), 'blocked');
+      console.log(new Date(), 'blocked', e);
+      if (e.msBeforeNext) {
+        await sleep(e.msBeforeNext);
+      }
     }
-    await sleep(200);
+    await sleep(100);
   }
 }());
-
-
