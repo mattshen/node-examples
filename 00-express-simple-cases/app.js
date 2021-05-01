@@ -77,8 +77,11 @@ app.use('/echo', function (req, res) {
     res.send({method: req.method, body: req.body, query: queryParams});
 });
 
-app.listen(3002, (req, res) => {
+const server = app.listen(3002, (req, res) => {
     console.log('server running on port 3002')
 });
+
+console.log("keeAliveTimeout=", server.keepAliveTimeout);
+console.log("MaxKeepAliveRe=", server.headersTimeout);
 
 
