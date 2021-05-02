@@ -1,18 +1,39 @@
 const { RateLimiterMemory } = require('rate-limiter-flexible');
 const { Readable, Writable, Transform, pipeline } = require('stream');
+const es = require('event-stream');
+const parallel = require('parallel-stream');
+const { read } = require('fs');
+
+let recentStart = 0;
+let recentEnd = 0;
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
 
 function createReadable() {
   let count = 0;
+  let max = 160000;
   const stream = new Readable({
     objectMode: true,
     read() {
-      this.push({ pushIndex: count++ });
+      if (count < max) {
+        const obj = { pushIndex: count++ }
+        console.log('=> start', obj);
+        this.push(obj);
+        recentStart = Math.max(obj.pushIndex, recentStart);
+      } else {
+        this.push(null);
+      }
     }
   });
   return stream;
 }
 
-function throtter(tps = 10) {
+
+function throttler(tps = 10) {
   const rateLimiter = new RateLimiterMemory({
     points: tps,
     duration: 1
@@ -21,13 +42,14 @@ function throtter(tps = 10) {
 
   function process(self, data, encoding, done) {
     rateLimiter.consume("bucket-123", 1).then(() => {
-      done(null, { ...data, time: new Date(), index: count++ });
+      //console.log(`<=> transform..., is paused? ${self.isPaused()}`,);
+      const pushed = self.push({ ...data, index: count++ });
+      //console.log(`<=> transform..., continue? ${pushed}`,);
+      done();
     }).catch((e) => {
-      self.pause();
       if (e.msBeforeNext) {
         setTimeout(() => {
           try {
-            self.resume();
             process(self, data, encoding, done);
           } catch (e) {
             done(e);
@@ -38,7 +60,7 @@ function throtter(tps = 10) {
       }
     })
   }
-  
+
   return new Transform({
     objectMode: true,
     transform(data, encoding, done) {
@@ -47,25 +69,51 @@ function throtter(tps = 10) {
   })
 }
 
-function render() {
+function parallelMap() { // backpressure holds
+  return parallel.transform(function(data, enc, cb) {
+    console.log('<=> parallelMap', 'writing...')
+    setTimeout(() => {
+      console.log('<=> parallelMap ', { ...data, writeAt: new Date() });
+      cb(null, data);
+    }, getRandomInt(3000, 5000));
+  }, { objectMode: true, concurrency: 1000 });
+}
+
+function asyncMap() { // this breaks backpressure
+  return es.map(function (data, cb) {
+    console.log('<=> asyncMap', 'writing...')
+    setTimeout(() => {
+      console.log('<=> asyncMap', data);
+      cb(null, data);
+    }, 100);
+  });
+}
+
+function syncMap() {
   return new Writable({
     objectMode: true,
     write(data, _, done) {
-      console.log('<-', data);
-      done();
+      setTimeout(() => {
+        console.log('<= end', {index: data.index});
+        recentEnd = Math.max(data.index, recentEnd);
+        console.log('< - *********** gap', recentEnd - recentStart);
+        done()
+      }, 20);
     }
   })
 }
 
 pipeline(
   createReadable(),
-  throtter(1),
-  render(),
+  throttler(1000),
+  parallelMap(),
+  // asyncMap(), // breaks backpressure
+  syncMap(),
   (err) => {
     if (err) {
-      console.error('Pipeline failed', err);
+      console.error('\nPipeline failed', err);
     } else {
-      console.log('Pipeline succeeded');
+      console.log('\nPipeline succeeded');
     }
   }
 );
