@@ -11,6 +11,7 @@
   "dependencies": {
     "event-stream": "^4.0.1",
     "parallel-stream": "^1.1.2",
-    "rate-limiter-flexible": "^2.2.1"
+    "rate-limiter-flexible": "^2.2.1",
+    "through2-concurrent": "^2.0.0"
   }
 }

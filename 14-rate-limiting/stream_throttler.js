@@ -2,6 +2,7 @@ const { RateLimiterMemory } = require('rate-limiter-flexible');
 const { Readable, Writable, Transform, pipeline } = require('stream');
 const es = require('event-stream');
 const parallel = require('parallel-stream');
+const through2Concurrent = require('through2-concurrent');
 const { read } = require('fs');
 
 let recentStart = 0;
@@ -79,6 +80,20 @@ function parallelMap() { // backpressure holds
   }, { objectMode: true, concurrency: 1000 });
 }
 
+
+function parallelMap2() {
+  return through2Concurrent.obj(
+    {maxConcurrency: 10},
+    function (chunk, enc, callback) {
+      var self = this;
+      setTimeout(() => {
+        self.push(chunk);
+        callback();
+      }, getRandomInt(3000, 5000));
+
+  })
+}
+
 function asyncMap() { // this breaks backpressure
   return es.map(function (data, cb) {
     console.log('<=> asyncMap', 'writing...')
@@ -106,7 +121,7 @@ function syncMap() {
 pipeline(
   createReadable(),
   throttler(1000),
-  parallelMap(),
+  parallelMap2(),
   // asyncMap(), // breaks backpressure
   syncMap(),
   (err) => {
