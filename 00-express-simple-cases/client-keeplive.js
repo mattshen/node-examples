@@ -17,7 +17,6 @@ const axiosInstance = axios.create({
     //follow up to 10 HTTP 3xx redirects
     maxRedirects: 10,
 
-
     //cap the maximum content length we'll accept to 50MBs, just in case
     maxContentLength: 50 * 1000 * 1000
 });

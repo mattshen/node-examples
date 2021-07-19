@@ -33,6 +33,36 @@ function createReadable() {
   return stream;
 }
 
+async function readFromSQS(id) {
+  // .sqs.receiveMessage(params).promise();
+
+  console.log('SQS read')
+  return {
+    messageId: id,
+    body: `hello ${id}`
+  };
+}
+
+function createDummySQSReadable() {
+  let count = 0;
+  let max = 160000;
+  const stream = new Readable({
+    objectMode: true,
+    read() {
+      if (count < max) {
+        readFromSQS(count).then(msg => {
+          const obj = { pushIndex: count++, sqsMsg: msg};
+          this.push(obj);
+          recentStart = Math.max(obj.pushIndex, recentStart);
+        })
+      } else {
+        // this.push(null);
+      }
+    }
+  });
+  return stream;
+}
+
 
 function throttler(tps = 10) {
   const rateLimiter = new RateLimiterMemory({
@@ -109,7 +139,7 @@ function syncMap() {
     objectMode: true,
     write(data, _, done) {
       setTimeout(() => {
-        console.log('<= end', {index: data.index});
+        console.log('<= end', {index: data.index, sqsMsg: data.sqsMsg });
         recentEnd = Math.max(data.index, recentEnd);
         console.log('< - *********** gap', recentEnd - recentStart);
         done()
@@ -119,7 +149,8 @@ function syncMap() {
 }
 
 pipeline(
-  createReadable(),
+  //createReadable(),
+  createDummySQSReadable(),
   throttler(1000),
   parallelMap2(),
   // asyncMap(), // breaks backpressure
