@@ -36,29 +36,78 @@ function createReadable() {
 async function readFromSQS(id) {
   // .sqs.receiveMessage(params).promise();
 
-  console.log('SQS read')
+  console.log(`SQS read id=${id}`)
+  if (id > 40 && id < 60) {
+    return null;
+  }
+  
   return {
     messageId: id,
     body: `hello ${id}`
   };
 }
 
-function createDummySQSReadable() {
-  let count = 0;
-  let max = 160000;
-  const stream = new Readable({
-    objectMode: true,
-    read() {
-      if (count < max) {
-        readFromSQS(count).then(msg => {
-          const obj = { pushIndex: count++, sqsMsg: msg};
-          this.push(obj);
+class SQSReadable extends Readable {
+
+  constructor(options) {
+    super(options);
+    this.count = 0;
+    this.max = 160000;
+    this._suspended = false;
+    this.start();
+  }
+
+  sqsResume() {
+    console.log("resuming at", new Date());
+    this._suspended = false;
+  }
+
+  sqsPause() {
+    console.log("pausing at ", new Date());
+    this._suspended = true;
+  }
+
+  start() {
+    const loop = (delay = 1000) => {
+      setTimeout(async () => {
+        console.log('start loop at', new Date(), `current state _suspened=${this._suspended}`);
+        if (!this._suspended && this.count < this.max) {
+          const msg = await readFromSQS(this.count);
+          const obj = { pushIndex: this.count++, sqsMsg: msg };
           recentStart = Math.max(obj.pushIndex, recentStart);
-        })
-      } else {
-        // this.push(null);
-      }
+          if (msg) {
+            console.log(`pushing obj=`, obj);
+            if (!this.push(obj)) {
+              console.log('!!!!!!!!!!!!!!!!!!! high water mark, pausing');
+              this.sqsPause();
+            } else {
+              // immediately run next loop
+              return loop(0);
+            }
+          } else {
+            console.log("no message in sqs!!");
+            return loop();
+          }
+        }
+        return loop();
+      }, delay);
     }
+
+    // start infinite loop
+    loop(0);
+  }
+
+  _read() {
+    console.log(`###############_read is called, _suspended=${this._suspended}, at`, new Date());
+    if (this._suspended) {
+      this.sqsResume();
+    }
+  }
+}
+
+function createDummySQSReadable() {
+  const stream = new SQSReadable({
+    objectMode: true
   });
   return stream;
 }
