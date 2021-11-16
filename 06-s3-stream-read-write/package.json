@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/aws-sdk": "^2.7.0",
-    "aws-sdk": "^2.603.0",
+    "aws-sdk": "^2.814.0",
     "xml-stream": "^0.4.5"
   }
 }
