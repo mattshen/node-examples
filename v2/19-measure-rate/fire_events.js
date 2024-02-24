@@ -6,12 +6,12 @@ const through2Concurrent = require('through2-concurrent');
 const Measured = require('measured-core');
 
 var stats = Measured.createCollection();
-var histogram = new Measured.Histogram();
+// var histogram = new Measured.Histogram();
 var gauge = new Measured.Gauge();
 
 setInterval(function () {
     console.log(stats.toJSON());
-    console.log(histogram.toJSON());
+    // console.log(histogram.toJSON());
 }, 3000);
 
 function createReadable() {
@@ -34,17 +34,17 @@ function createReadable() {
 
 function parallelMap() {
     return through2Concurrent.obj(
-        { maxConcurrency: 1000 },
+        { maxConcurrency: 2_000 },
         async function (chunk, enc, callback) {
             const t1 = Date.now();
             setTimeout(() => {
                 stats.meter('requestsPerSecond').mark();
                 // console.log(`in ${chunk.id}`);
                 const t2 = Date.now();
-                histogram.update(t2 - t1);
+                // histogram.update(t2 - t1);
                 this.push(chunk);
                 callback();
-            }, 500);
+            }, 0);
 
         })
 }
@@ -54,7 +54,7 @@ function endMap() {
     return new Writable({
         objectMode: true,
         write(data, _, done) {
-            setTimeout(() => {
+            setImmediate(() => {
                 //console.log('<= end', data.id);
                 done()
             });
@@ -64,7 +64,7 @@ function endMap() {
 
 pipeline(
     createReadable(),
-    StreamUtils.throttler(200),
+    StreamUtils.throttler(2_000),
     parallelMap(),
     endMap(),
     (err) => {

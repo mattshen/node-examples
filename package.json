@@ -10,7 +10,10 @@
     "type": "git",
     "url": "git+https://github.com/mattshen/node-examples.git"
   },
-  "workspaces": ["./packages/*", "./v2/*"],
+  "workspaces": [
+    "./packages/*",
+    "./v2/*"
+  ],
   "keywords": [
     "NodeJS",
     "Examples"
@@ -20,5 +23,9 @@
   "bugs": {
     "url": "https://github.com/mattshen/node-examples/issues"
   },
-  "homepage": "https://github.com/mattshen/node-examples#readme"
+  "homepage": "https://github.com/mattshen/node-examples#readme",
+  "dependencies": {
+    "dotenv": "^16.0.2",
+    "yargs": "^17.5.1"
+  }
 }
